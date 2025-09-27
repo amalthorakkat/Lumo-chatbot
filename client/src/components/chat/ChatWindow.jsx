@@ -184,7 +184,7 @@ import {
   updateSessionTitle,
 } from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
-import Logo from "../../assets/LOGO.svg";
+import Logo from "../../assets/LOGO.png";
 
 const ChatWindow = () => {
   const [input, setInput] = useState("");
@@ -210,7 +210,6 @@ const ChatWindow = () => {
   }, [messages]);
 
   useEffect(() => {
-    // Reset textarea height on input clear
     if (!input && textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
@@ -291,8 +290,7 @@ const ChatWindow = () => {
 
   return (
     <div className="flex flex-col h-full bg-gradient-to-br from-white/95 to-blue-50/95 backdrop-blur-xl">
-      {/* Enhanced Chat Header */}
-      <div className="sticky top-0 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-lg border-b border-white/30 p-4 sm:p-6 z-10">
+      <div className="sticky top-0 bg-gradient-to-r from-white/90 to-blue-50/90 backdrop-blur-lg border-b border-white/30 p-2 sm:p-4 z-10">
         <div className="flex items-center justify-center">
           {isMobile ? (
             <div className="flex items-center justify-center group">
@@ -326,12 +324,11 @@ const ChatWindow = () => {
         </div>
       </div>
 
-      {/* Enhanced Messages Area */}
-      <div className="flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
+      <div className="flex-1 p-2 sm:p-4 overflow-y-auto scrollbar-thin scrollbar-thumb-blue-200 scrollbar-track-transparent">
         {currentSessionId ? (
           <>
             {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-full space-y-6 text-center">
+              <div className="flex flex-col items-center justify-center h-full space-y-2 sm:space-y-4 text-center">
                 <div className="relative">
                   <div className="w-20 h-20 bg-gradient-to-r from-blue-100 to-indigo-100 rounded-full flex items-center justify-center">
                     <Sparkles
@@ -341,7 +338,7 @@ const ChatWindow = () => {
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-r from-blue-200/30 to-indigo-200/30 rounded-full blur-xl animate-pulse"></div>
                 </div>
-                <div className="space-y-2">
+                <div className="space-y-1 sm:space-y-2">
                   <h3 className="text-xl font-semibold text-slate-800">
                     Start a conversation
                   </h3>
@@ -350,7 +347,7 @@ const ChatWindow = () => {
                     tasks, analysis, and more.
                   </p>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 max-w-[95%] sm:max-w-lg w-full">
                   {[
                     "💡 Creative brainstorming",
                     "📊 Data analysis help",
@@ -359,7 +356,7 @@ const ChatWindow = () => {
                   ].map((suggestion, index) => (
                     <div
                       key={index}
-                      className="p-3 bg-white/60 hover:bg-white/80 backdrop-blur-sm rounded-xl border border-white/40 cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-1 text-sm text-slate-600"
+                      className="p-2 sm:p-3 bg-white/60 hover:bg-white/80 backdrop-blur-sm rounded-xl border border-white/40 cursor-pointer transition-all duration-300 hover:shadow-md hover:-translate-y-1 text-sm text-slate-600"
                       onClick={() =>
                         setInput(suggestion.split(" ").slice(1).join(" "))
                       }
@@ -374,7 +371,7 @@ const ChatWindow = () => {
             {messages.map((msg, index) => (
               <div
                 key={index}
-                className={`flex items-start gap-3 mb-6 animate-fadeIn ${
+                className={`flex items-start gap-2 sm:gap-3 mb-2 sm:mb-4 animate-fadeIn ${
                   msg.sender === "user" ? "justify-end" : "justify-start"
                 }`}
                 style={{
@@ -392,7 +389,7 @@ const ChatWindow = () => {
                 )}
 
                 <div
-                  className={`group relative max-w-[75%] transition-all duration-300 ${
+                  className={`group relative max-w-[90%] sm:max-w-[75%] transition-all duration-300 ${
                     msg.sender === "user"
                       ? "bg-gradient-to-r from-blue-500 to-indigo-600 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
                       : "bg-white/80 backdrop-blur-sm text-slate-800 shadow-lg hover:shadow-xl border border-white/40 hover:bg-white/90 transform hover:-translate-y-0.5"
@@ -401,13 +398,13 @@ const ChatWindow = () => {
                   {msg.sender === "user" && (
                     <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
                   )}
-                  <div className="p-4 relative z-10">
+                  <div className="p-2 sm:p-4 relative z-10">
                     <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
                       {msg.text}
                     </div>
                     {msg.createdAt && (
                       <div
-                        className={`text-xs mt-2 opacity-70 ${
+                        className={`text-xs mt-1 sm:mt-2 opacity-70 ${
                           msg.sender === "user"
                             ? "text-blue-100"
                             : "text-slate-500"
@@ -430,7 +427,7 @@ const ChatWindow = () => {
             ))}
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
+          <div className="flex flex-col items-center justify-center h-full space-y-2 sm:space-y-4">
             <div className="relative">
               <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
               <div
@@ -441,7 +438,7 @@ const ChatWindow = () => {
                 }}
               ></div>
             </div>
-            <div className="text-center space-y-2">
+            <div className="text-center space-y-1 sm:space-y-2">
               <div className="text-slate-600 font-medium">
                 Preparing your chat session...
               </div>
@@ -461,15 +458,15 @@ const ChatWindow = () => {
         )}
 
         {loading && (
-          <div className="flex justify-start items-center gap-3 mb-4 animate-fadeIn">
+          <div className="flex justify-start items-center gap-2 sm:gap-3 mb-2 sm:mb-4 animate-fadeIn">
             <div className="relative">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
                 <Bot size={16} className="text-white" />
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-indigo-400/20 rounded-full blur-md animate-pulse"></div>
             </div>
-            <div className="bg-white/80 backdrop-blur-sm p-4 rounded-2xl shadow-lg border border-white/40">
-              <div className="flex items-center gap-3">
+            <div className="bg-white/80 backdrop-blur-sm p-2 sm:p-4 rounded-2xl shadow-lg border border-white/40 max-w-[90%] sm:max-w-[75%]">
+              <div className="flex items-center gap-2 sm:gap-3">
                 <div className="flex space-x-1">
                   <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
                   <div
@@ -495,8 +492,8 @@ const ChatWindow = () => {
         onSubmit={handleSend}
         className="sticky bottom-0 bg-gradient-to-t from-white/95 to-white/80 backdrop-blur-lg border-t border-white/30 p-2 sm:p-4"
       >
-        <div className="relative max-w-full sm:max-w-4xl mx-auto">
-          <div className="relative flex items-end gap-2 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-white/40 p-2 sm:p-3 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-300 transition-all duration-300">
+        <div className="relative max-w-[95%] sm:max-w-4xl mx-auto">
+          <div className="relative flex items-end gap-1 sm:gap-2 bg-white/80 backdrop-blur-sm rounded-xl shadow-xl border border-white/40 p-1.5 sm:p-3 focus-within:ring-2 focus-within:ring-blue-500/50 focus-within:border-blue-300 transition-all duration-300">
             <div className="flex-1 relative">
               <textarea
                 ref={textareaRef}
@@ -508,7 +505,7 @@ const ChatWindow = () => {
                     handleSend(e);
                   }
                 }}
-                className="w-full max-h-24 sm:max-h-32 min-h-[36px] sm:min-h-[44px] px-3 sm:px-4 py-2 sm:py-3 bg-transparent border-0 resize-none focus:outline-none text-slate-700 placeholder-slate-400 text-sm sm:text-base leading-relaxed"
+                className="w-full max-h-24 sm:max-h-32 min-h-[36px] sm:min-h-[44px] px-2 sm:px-4 py-1.5 sm:py-3 bg-transparent border-0 resize-none focus:outline-none text-slate-700 placeholder-slate-400 text-sm sm:text-base leading-relaxed"
                 placeholder={
                   currentSessionId
                     ? "Type your message..."

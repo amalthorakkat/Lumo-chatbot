@@ -20,4 +20,14 @@
   animation: fadeInUp 0.5s ease-out forwards;
 }
 
-
+/* Notebook-style background grid */
+/* .notebook-bg {
+  background-color: #fdfdfd; /* base paper-like color */
+  /* background-image: linear-gradient(
+      to right,
+      rgba(0, 0, 0, 0.05) 1px,
+      transparent 1px
+    ),
+    linear-gradient(to bottom, rgba(0, 0, 0, 0.05) 1px, transparent 1px);
+  background-size: 40px 40px; /* size of the squares */
+/* } */ 

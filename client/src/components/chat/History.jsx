@@ -9,7 +9,7 @@ import {
   clearMessages,
 } from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
-import Logo from "../../assets/LOGO.svg";
+import Logo from "../../assets/LOGO.png";
 import DeleteChatModal from "../modal/DeleteChatModal";
 
 const History = () => {
