@@ -8,8 +8,8 @@ import {
 import { useSelector } from "react-redux";
 import Login from "./components/Auth/Login";
 import Signup from "./components/Auth/Signup";
-import ChatWindow from "./components/Chat/ChatWindow";
 import Header from "./components/chat/Header";
+import ChatPage from "./components/chat/ChatPage";
 
 const Layout = () => (
   <div className="min-h-screen bg-gray-100">
@@ -42,7 +42,7 @@ const App = () => {
               path="/chat"
               element={
                 isAuthenticated ? (
-                  <ChatWindow />
+                  <ChatPage />
                 ) : (
                   <Navigate to="/login" replace />
                 )

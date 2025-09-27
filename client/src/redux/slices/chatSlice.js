@@ -3,6 +3,8 @@ import { createSlice } from "@reduxjs/toolkit";
 const initialState = {
   messages: [],
   loading: false,
+  currentSessionId: null,
+  sessions: [],
 };
 
 const chatSlice = createSlice({
@@ -18,8 +20,21 @@ const chatSlice = createSlice({
     clearMessages: (state) => {
       state.messages = [];
     },
+    setCurrentSession: (state, action) => {
+      state.currentSessionId = action.payload.sessionId;
+      state.messages = action.payload.messages || [];
+    },
+    setSessions: (state, action) => {
+      state.sessions = action.payload;
+    },
   },
 });
 
-export const { addMessage, setLoading, clearMessages } = chatSlice.actions;
+export const {
+  addMessage,
+  setLoading,
+  clearMessages,
+  setCurrentSession,
+  setSessions,
+} = chatSlice.actions;
 export default chatSlice.reducer;
