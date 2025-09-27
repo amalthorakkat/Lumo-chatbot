@@ -1,0 +1,7 @@
+@import "tailwindcss";
+
+:root {
+  font-family: "Schibsted Grotesk", sans-serif;
+  margin: 0;
+  padding: 0;
+}
