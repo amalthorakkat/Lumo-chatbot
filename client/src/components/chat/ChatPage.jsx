@@ -5,7 +5,7 @@ import api from "../../utils/api";
 import History from "./History";
 import ChatWindow from "./ChatWindow";
 import { setSessions, setCurrentSession } from "../../redux/slices/chatSlice";
-import { logout } from "../../redux/slices/authSlice"; // Fixed import
+import { logout } from "../../redux/slices/authSlice";
 
 const ChatPage = () => {
   const dispatch = useDispatch();
@@ -71,17 +71,21 @@ const ChatPage = () => {
   }, [dispatch, isAuthenticated, navigate]);
 
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex h-screen overflow-hidden bg-gray-100">
       <History />
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 flex justify-center overflow-y-auto transition-all duration-300">
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></div>
           </div>
         ) : error ? (
-          <div className="text-center text-red-500 p-4">{error}</div>
+          <div className="text-center text-red-500 p-4 max-w-4xl mx-auto">
+            {error}
+          </div>
         ) : (
-          <ChatWindow />
+          <div className="w-full max-w-4xl mx-auto">
+            <ChatWindow />
+          </div>
         )}
       </div>
     </div>

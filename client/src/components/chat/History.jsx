@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { Plus, Trash2, Menu, Edit2 } from "lucide-react";
 import api from "../../utils/api";
 import {
@@ -7,15 +8,18 @@ import {
   setCurrentSession,
   clearMessages,
 } from "../../redux/slices/chatSlice";
+import { logout } from "../../redux/slices/authSlice";
 
 const History = () => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(window.innerWidth >= 768); // Open by default on desktop, closed on mobile
   const [loading, setLoading] = useState(false);
   const [editingSessionId, setEditingSessionId] = useState(null);
   const [newTitle, setNewTitle] = useState("");
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const sessions = useSelector((state) => state.chat.sessions);
   const currentSessionId = useSelector((state) => state.chat.currentSessionId);
+  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
   const handleNewChat = async () => {
     setLoading(true);
@@ -29,6 +33,7 @@ const History = () => {
       };
       dispatch(setSessions([newSession, ...sessions]));
       dispatch(setCurrentSession({ sessionId: newSession._id, messages: [] }));
+      if (window.innerWidth < 768) setIsOpen(false); // Close sidebar on mobile after action
     } catch (error) {
       console.error("New Chat Error:", error);
     } finally {
@@ -40,6 +45,7 @@ const History = () => {
     const session = sessions.find((s) => s._id === sessionId);
     if (session) {
       dispatch(setCurrentSession({ sessionId, messages: session.messages }));
+      if (window.innerWidth < 768) setIsOpen(false); // Close sidebar on mobile
     }
   };
 
@@ -63,6 +69,7 @@ const History = () => {
           dispatch(setCurrentSession({ sessionId: null, messages: [] }));
         }
       }
+      if (window.innerWidth < 768) setIsOpen(false); // Close sidebar on mobile
     } catch (error) {
       console.error("Delete Session Error:", error);
     } finally {
@@ -86,6 +93,7 @@ const History = () => {
       dispatch(setSessions(updatedSessions));
       setEditingSessionId(null);
       setNewTitle("");
+      if (window.innerWidth < 768) setIsOpen(false); // Close sidebar on mobile
     } catch (error) {
       console.error("Edit Title Error:", error);
     } finally {
@@ -93,42 +101,59 @@ const History = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    dispatch(clearMessages());
+    navigate("/login");
+  };
+
   return (
     <div
       className={`${
         isOpen ? "w-64" : "w-16"
-      } flex-shrink-0 h-full bg-gray-900 text-white flex flex-col transition-all duration-300`}
+      } md:w-64 fixed md:static inset-y-0 left-0 z-30 bg-white text-gray-800 shadow-lg flex flex-col transition-all duration-300 md:transition-none`}
     >
-      <div className="flex items-center justify-between p-4 border-b border-gray-700">
-        {isOpen && <h1 className="text-lg font-bold">Chat History</h1>}
+      <div className="sticky top-0 bg-white z-10 border-b border-gray-200 p-4">
+        <div className="flex items-center justify-between">
+          {isOpen ? (
+            <h1 className="text-xl font-semibold text-gray-800">Lumo</h1>
+          ) : (
+            <span
+              className="mx-auto text-lg font-semibold text-gray-800"
+              title="Chatbot"
+            >
+              💬
+            </span>
+          )}
+          <button
+            onClick={() => setIsOpen(!isOpen)}
+            className="p-1 rounded-full hover:bg-gray-100 md:hidden"
+            disabled={loading}
+          >
+            <Menu size={20} className="text-gray-600" />
+          </button>
+        </div>
+      </div>
+      <div className="flex-1 overflow-y-auto p-2">
         <button
-          onClick={() => setIsOpen(!isOpen)}
-          className="hover:bg-gray-700 p-1 rounded"
+          onClick={handleNewChat}
+          className="flex items-center justify-center md:justify-start gap-2 w-full p-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-200 disabled:bg-gray-400"
           disabled={loading}
         >
-          <Menu size={20} />
+          <Plus size={18} />
+          {isOpen && <span className="text-sm">New Chat</span>}
         </button>
-      </div>
-      <button
-        onClick={handleNewChat}
-        className="flex items-center justify-center sm:justify-start gap-2 m-2 p-3 border border-gray-700 rounded-lg hover:bg-gray-800 transition duration-150 disabled:bg-gray-600"
-        disabled={loading}
-      >
-        <Plus size={18} />
-        {isOpen && <span>New Chat</span>}
-      </button>
-      <div className="flex-1 overflow-y-auto pt-2">
         {loading ? (
           <div className="flex justify-center p-4">
             <div className="animate-spin h-5 w-5 border-4 border-blue-500 border-t-transparent rounded-full"></div>
           </div>
         ) : sessions.length > 0 ? (
-          <ul className="space-y-1 px-2">
+          <ul className="space-y-1 mt-2">
             {sessions.map((session) => (
               <li
                 key={session._id}
-                className={`group flex items-center p-2 rounded hover:bg-gray-800 cursor-pointer transition duration-150 ${
-                  session._id === currentSessionId ? "bg-gray-800" : ""
+                className={`group flex items-center p-2 rounded-lg hover:bg-gray-100 cursor-pointer transition duration-200 ${
+                  session._id === currentSessionId ? "bg-gray-100" : ""
                 }`}
                 onClick={() => handleSelectSession(session._id)}
               >
@@ -142,13 +167,13 @@ const History = () => {
                       onKeyPress={(e) =>
                         e.key === "Enter" && handleSaveTitle(session._id)
                       }
-                      className="flex-1 bg-gray-700 text-white rounded p-1 text-sm"
+                      className="flex-1 bg-gray-100 text-gray-800 rounded p-1 text-sm border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       autoFocus
                     />
                   ) : (
                     <>
                       <span
-                        className="flex-1 truncate text-sm"
+                        className="flex-1 truncate text-sm text-gray-700"
                         title={session.title}
                       >
                         {session.title}
@@ -162,7 +187,7 @@ const History = () => {
                       >
                         <Edit2
                           size={16}
-                          className="text-gray-400 hover:text-blue-400"
+                          className="text-gray-500 hover:text-blue-500"
                         />
                       </button>
                       <button
@@ -174,13 +199,13 @@ const History = () => {
                       >
                         <Trash2
                           size={16}
-                          className="text-gray-400 hover:text-red-400"
+                          className="text-gray-500 hover:text-red-500"
                         />
                       </button>
                     </>
                   )
                 ) : (
-                  <span className="mx-auto" title={session.title}>
+                  <span className="mx-auto text-gray-700" title={session.title}>
                     💬
                   </span>
                 )}
@@ -195,15 +220,41 @@ const History = () => {
           )
         )}
       </div>
-      <div className="p-3 border-t border-gray-700">
+      <div className="sticky bottom-0 bg-white border-t border-gray-200 p-3">
         {isOpen ? (
-          <button className="w-full bg-gray-800 py-2 rounded hover:bg-gray-700 text-sm">
-            Upgrade Account
-          </button>
+          <div className="space-y-2">
+            <button className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600 text-sm transition duration-200 disabled:bg-gray-400">
+              Upgrade Account
+            </button>
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 text-sm transition duration-200 disabled:bg-gray-400"
+                disabled={loading}
+              >
+                Logout
+              </button>
+            )}
+          </div>
         ) : (
-          <span className="block text-center text-lg" title="Upgrade">
-            ⚡
-          </span>
+          <div className="space-y-2">
+            <button
+              className="block mx-auto text-center text-lg text-gray-700 hover:text-blue-600"
+              title="Upgrade"
+            >
+              ⚡
+            </button>
+            {isAuthenticated && (
+              <button
+                onClick={handleLogout}
+                className="block mx-auto text-center text-lg text-red-500 hover:text-red-600"
+                title="Logout"
+                disabled={loading}
+              >
+                🚪
+              </button>
+            )}
+          </div>
         )}
       </div>
     </div>

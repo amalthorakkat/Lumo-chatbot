@@ -1,40 +1,50 @@
-import { createSlice } from "@reduxjs/toolkit";
+
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
+  sessions: [],
+  currentSessionId: null,
   messages: [],
   loading: false,
-  currentSessionId: null,
-  sessions: [],
 };
 
 const chatSlice = createSlice({
-  name: "chat",
+  name: 'chat',
   initialState,
   reducers: {
-    addMessage: (state, action) => {
-      state.messages.push(action.payload);
+    setSessions(state, action) {
+      state.sessions = action.payload;
     },
-    setLoading: (state, action) => {
-      state.loading = action.payload;
+    setCurrentSession(state, action) {
+      state.currentSessionId = action.payload.sessionId;
+      state.messages = action.payload.messages;
     },
-    clearMessages: (state) => {
+    clearMessages(state) {
       state.messages = [];
     },
-    setCurrentSession: (state, action) => {
-      state.currentSessionId = action.payload.sessionId;
-      state.messages = action.payload.messages || [];
+    addMessage(state, action) {
+      state.messages.push(action.payload);
     },
-    setSessions: (state, action) => {
-      state.sessions = action.payload;
+    setLoading(state, action) {
+      state.loading = action.payload;
+    },
+    updateSessionTitle(state, action) {
+      const { sessionId, title } = action.payload;
+      const session = state.sessions.find((s) => s._id === sessionId);
+      if (session) {
+        session.title = title;
+      }
     },
   },
 });
 
 export const {
+  setSessions,
+  setCurrentSession,
+  clearMessages,
   addMessage,
   setLoading,
-  clearMessages,
-  setCurrentSession,
-  setSessions,
+  updateSessionTitle,
 } = chatSlice.actions;
+
 export default chatSlice.reducer;

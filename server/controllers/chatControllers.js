@@ -56,7 +56,7 @@ const sendMessage = async (req, res) => {
 
     let reply;
     try {
-      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" }); // Updated to gemini-2.5-flash
+      const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
       const result = await model.generateContent(message);
       const response = await result.response;
       reply = response.text();
@@ -71,12 +71,12 @@ const sendMessage = async (req, res) => {
         reply =
           "Sorry, I couldn’t process your request. Please try again later.";
       }
-      // Save the fallback response to maintain session history
       session.messages.push({ sender: "bot", text: reply });
       await session.save();
       return res.status(error.message.includes("503") ? 503 : 500).json({
         message: reply,
         sessionId,
+        title: session.title, // Include title in error response
       });
     }
 
@@ -88,7 +88,7 @@ const sendMessage = async (req, res) => {
     }
     await session.save();
 
-    res.json({ reply, sessionId });
+    res.json({ reply, sessionId, title: session.title }); // Include updated title
   } catch (error) {
     console.error("Send Message Error:", error.message);
     res
@@ -105,12 +105,10 @@ const getChatSessions = async (req, res) => {
     res.json(sessions);
   } catch (error) {
     console.error("Get Chat Sessions Error:", error.message);
-    res
-      .status(500)
-      .json({
-        message: "Error retrieving chat sessions",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error retrieving chat sessions",
+      error: error.message,
+    });
   }
 };
 
