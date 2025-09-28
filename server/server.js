@@ -7,17 +7,30 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
-      "lumo-chatbot-sigma.vercel.app",
-      "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
-    ],
-    credentials: true,
-  })
-);
+const corsOption = {
+  origin: [
+    "http://localhost:5173",
+    "lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
+    "lumo-chatbot-sigma.vercel.app",
+    "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
+  ],
+  Credential: true,
+  optionSuccessStatus: 200,
+};
+
+app.use(cors(corsOption));
+
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
+//       "lumo-chatbot-sigma.vercel.app",
+//       "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
+//     ],
+//     credentials: true,
+//   })
+// );
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
