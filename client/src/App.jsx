@@ -5,8 +5,8 @@ import {
   Navigate,
 } from "react-router-dom";
 import { useSelector } from "react-redux";
-import Login from "./components/Auth/Login";
-import Signup from "./components/Auth/Signup";
+import SignUp from "./components/auth/SignUp";
+import Login from "./components/auth/Login";
 import ChatPage from "./components/chat/ChatPage";
 
 const App = () => {
@@ -25,7 +25,7 @@ const App = () => {
           <Route
             path="/signup"
             element={
-              isAuthenticated ? <Navigate to="/chat" replace /> : <Signup />
+              isAuthenticated ? <Navigate to="/chat" replace /> : <SignUp />
             }
           />
           <Route
