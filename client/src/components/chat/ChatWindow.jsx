@@ -173,9 +173,6 @@
 
 // export default ChatWindow;
 
-
-
-
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -246,73 +243,54 @@ const ChatWindow = () => {
       );
     } catch (err) {
       console.error("Send Message Error:", err);
-      if (err.response?.status === 401) {
-        dispatch(
-          addMessage({
-            sender: "bot",
-            text: "Session expired. Please log in again.",
-          })
-        );
-        dispatch(logout());
-        navigate("/login");
-      } else if (err.response?.status === 403) {
-        dispatch(
-          addMessage({
-            sender: "bot",
-            text: "Unauthorized: This chat session does not belong to you. Starting a new session.",
-          })
-        );
-        try {
-          const response = await api.post("/chat/new");
-          dispatch(
-            setCurrentSession({
-              sessionId: response.data.sessionId,
-              messages: [],
-            })
-          );
-          dispatch(
-            updateSessionTitle({
-              sessionId: response.data.sessionId,
-              title: response.data.title,
-            })
-          );
-        } catch (newSessionErr) {
-          dispatch(
-            addMessage({
-              sender: "bot",
-              text: "Failed to start a new session. Please try logging out and back in.",
-            })
-          );
+      let errorMessage = "Error: Could not get response.";
+      if (err.response) {
+        switch (err.response.status) {
+          case 401:
+            errorMessage = "Session expired. Please log in again.";
+            dispatch(logout());
+            navigate("/login");
+            break;
+          case 403:
+            errorMessage =
+              "Unauthorized: This chat session does not belong to you. Starting a new session.";
+            try {
+              const response = await api.post("/chat/new");
+              dispatch(
+                setCurrentSession({
+                  sessionId: response.data.sessionId,
+                  messages: [],
+                })
+              );
+              dispatch(
+                updateSessionTitle({
+                  sessionId: response.data.sessionId,
+                  title: response.data.title,
+                })
+              );
+            } catch (newSessionErr) {
+              errorMessage =
+                "Failed to start a new session. Please try logging out and back in.";
+            }
+            break;
+          case 404:
+            errorMessage = "Session not found. Please start a new chat.";
+            break;
+          case 500:
+            errorMessage =
+              err.response.data.message || "Server error. Please try again.";
+            break;
+          case 503:
+            errorMessage =
+              err.response.data.message ||
+              "Service temporarily unavailable. Your message has been saved.";
+            break;
+          default:
+            errorMessage =
+              err.response.data.message || "An unexpected error occurred.";
         }
-      } else if (err.response?.status === 404) {
-        dispatch(
-          addMessage({
-            sender: "bot",
-            text: "Session not found. Please start a new chat.",
-          })
-        );
-      } else if (err.response?.status === 503 || err.response?.status === 500) {
-        dispatch(
-          addMessage({
-            sender: "bot",
-            text: err.response.data.message,
-          })
-        );
-        dispatch(
-          updateSessionTitle({
-            sessionId: currentSessionId,
-            title: err.response.data.title,
-          })
-        );
-      } else {
-        dispatch(
-          addMessage({
-            sender: "bot",
-            text:
-              err.response?.data?.message || "Error: Could not get response.",
-          })
-        );
       }
+      dispatch(addMessage({ sender: "bot", text: errorMessage }));
     } finally {
       dispatch(setLoading(false));
     }
@@ -354,7 +332,11 @@ const ChatWindow = () => {
         </div>
       </div>
 
-      <div className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${isMobile ? 'pb-24' : 'pb-6'}`}>
+      <div
+        className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${
+          isMobile ? "pb-24" : "pb-6"
+        }`}
+      >
         {currentSessionId ? (
           <>
             {messages.length === 0 && (
@@ -372,7 +354,8 @@ const ChatWindow = () => {
                     Start a conversation
                   </h3>
                   <p className="text-gray-600 max-w-md">
-                    Ask anything! I'm here to assist with questions, creative tasks, analysis, and more.
+                    Ask anything! I'm here to assist with questions, creative
+                    tasks, analysis, and more.
                   </p>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
@@ -504,7 +487,11 @@ const ChatWindow = () => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0' : 'sticky bottom-0'} bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}>
+      <div
+        className={`${
+          isMobile ? "fixed bottom-0 left-0 right-0" : "sticky bottom-0"
+        } bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}
+      >
         <div className="relative max-w-4xl mx-auto">
           <div className="relative flex items-end gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-300 transition-all duration-300">
             <textarea

@@ -7,6 +7,13 @@ const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
+console.log("Environment Variables:", {
+  MONGODB_URI: process.env.MONGODB_URI,
+  GEMINI_API_KEY: !!process.env.GEMINI_API_KEY, 
+  CLIENT_URL: process.env.CLIENT_URL,
+  PORT: process.env.PORT,
+});
+
 app.use(
   cors({
     origin: process.env.CLIENT_URL,
