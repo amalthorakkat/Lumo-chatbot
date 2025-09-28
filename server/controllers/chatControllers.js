@@ -157,9 +157,11 @@ const sendMessage = async (req, res) => {
 
 const getChatSessions = async (req, res) => {
   try {
+    console.log(`Fetching sessions for userId: ${req.user.userId}`);
     const sessions = await ChatSession.find({ userId: req.user.userId }).sort({
       createdAt: -1,
     });
+    console.log(`Found ${sessions.length} sessions:`, sessions);
     res.json(sessions);
   } catch (error) {
     console.error("Get Chat Sessions Error:", error.message);

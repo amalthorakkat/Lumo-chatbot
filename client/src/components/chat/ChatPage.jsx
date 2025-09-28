@@ -100,7 +100,12 @@ import { useNavigate } from "react-router-dom";
 import api from "../../utils/api";
 import History from "./History";
 import ChatWindow from "./ChatWindow";
-import { setSessions, setCurrentSession } from "../../redux/slices/chatSlice";
+import {
+  setSessions,
+  setCurrentSession,
+  updateSessionTitle,
+  clearMessages,
+} from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
 
 const ChatPage = () => {
@@ -126,61 +131,63 @@ const ChatPage = () => {
     }
   };
 
-
-useEffect(() => {
-  if (!isAuthenticated) {
-    navigate("/login");
-    return;
-  }
-
-  const fetchSessions = async () => {
-    setLoading(true);
-    setError("");
-    try {
-      console.log("Fetching sessions for user");
-      const response = await api.get("/chat/sessions");
-      const sessions = response.data;
-      console.log("Fetched sessions:", sessions);
-      dispatch(setSessions(sessions));
-      if (sessions.length > 0) {
-        dispatch(
-          setCurrentSession({
-            sessionId: sessions[0]._id,
-            messages: sessions[0].messages,
-          })
-        );
-      } else {
-        console.log("No sessions found, creating new session");
-        const newSessionResponse = await api.post("/chat/new");
-        console.log("New session created:", newSessionResponse.data);
-        dispatch(
-          setCurrentSession({
-            sessionId: newSessionResponse.data.sessionId,
-            messages: [],
-          })
-        );
-        dispatch(
-          updateSessionTitle({
-            sessionId: newSessionResponse.data.sessionId,
-            title: newSessionResponse.data.title,
-          })
-        );
-      }
-    } catch (error) {
-      console.error("Fetch Sessions Error:", error);
-      if (error.response?.status === 401) {
-        dispatch(logout());
-        navigate("/login");
-      } else {
-        setError("Failed to load chat sessions: " + (error.response?.data?.message || "Unknown error"));
-      }
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
     }
-  };
 
-  fetchSessions();
-}, [dispatch, isAuthenticated, navigate]);
+    const fetchSessions = async () => {
+      setLoading(true);
+      setError("");
+      try {
+        console.log("Fetching sessions for user");
+        const response = await api.get("/chat/sessions");
+        const sessions = response.data;
+        console.log("Fetched sessions:", sessions);
+        dispatch(setSessions(sessions));
+        if (sessions.length > 0) {
+          dispatch(
+            setCurrentSession({
+              sessionId: sessions[0]._id,
+              messages: sessions[0].messages,
+            })
+          );
+        } else {
+          console.log("No sessions found, creating new session");
+          const newSessionResponse = await api.post("/chat/new");
+          console.log("New session created:", newSessionResponse.data);
+          const newSession = {
+            _id: newSessionResponse.data.sessionId,
+            title: newSessionResponse.data.title,
+            messages: [],
+          };
+          dispatch(setSessions([newSession])); // Update sessions with the new session
+          dispatch(
+            setCurrentSession({
+              sessionId: newSessionResponse.data.sessionId,
+              messages: [],
+            })
+          );
+        }
+      } catch (error) {
+        console.error("Fetch Sessions Error:", error);
+        if (error.response?.status === 401) {
+          dispatch(logout());
+          navigate("/login");
+        } else {
+          setError(
+            "Failed to load chat sessions: " +
+              (error.response?.data?.message || "Unknown error")
+          );
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, [dispatch, isAuthenticated, navigate]);
 
   return (
     <div className="flex h-screen overflow-hidden notebook-bg">

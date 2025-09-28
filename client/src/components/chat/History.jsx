@@ -48,18 +48,23 @@ const History = () => {
   const handleNewChat = async () => {
     setLoading(true);
     try {
-      dispatch(clearMessages());
+      console.log("Creating new chat session");
       const response = await api.post("/chat/new");
       const newSession = {
         _id: response.data.sessionId,
         title: response.data.title,
         messages: [],
       };
+      console.log("New session:", newSession);
       dispatch(setSessions([newSession, ...sessions]));
       dispatch(setCurrentSession({ sessionId: newSession._id, messages: [] }));
       setIsOpen(false);
     } catch (error) {
       console.error("New Chat Error:", error);
+      alert(
+        "Failed to create new chat: " +
+          (error.response?.data?.message || "Unknown error")
+      );
     } finally {
       setLoading(false);
     }
