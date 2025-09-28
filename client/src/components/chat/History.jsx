@@ -9,8 +9,10 @@ import {
   clearMessages,
 } from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
-import Logo from "../../assets/LOGO.png";
 import DeleteChatModal from "../modal/DeleteChatModal";
+
+const LOGO_URL =
+  "https://i.postimg.cc/RhqzpXz5/Gemini-Generated-Image-kyplvxkyplvxkypl-1.png";
 
 const History = () => {
   const [isOpen, setIsOpen] = useState(false); // Always closed by default on mobile
@@ -74,6 +76,7 @@ const History = () => {
   const handleDeleteSession = async (sessionId) => {
     setLoading(true);
     try {
+      console.log(`Deleting session: ${sessionId}`);
       await api.delete(`/chat/session/${sessionId}`);
       const updatedSessions = sessions.filter((s) => s._id !== sessionId);
       dispatch(setSessions(updatedSessions));
@@ -86,12 +89,21 @@ const History = () => {
             })
           );
         } else {
-          dispatch(setCurrentSession({ sessionId: null, messages: [] }));
+          await handleNewChat(); // Create a new session if none remain
         }
       }
       setIsOpen(false);
     } catch (error) {
       console.error("Delete Session Error:", error);
+      if (error.response?.status === 401) {
+        dispatch(logout());
+        navigate("/login");
+      } else {
+        alert(
+          "Failed to delete session: " +
+            (error.response?.data?.message || "Unknown error")
+        );
+      }
     } finally {
       setLoading(false);
       setShowDeleteModal(false);
@@ -118,6 +130,15 @@ const History = () => {
       setIsOpen(false);
     } catch (error) {
       console.error("Edit Title Error:", error);
+      if (error.response?.status === 401) {
+        dispatch(logout());
+        navigate("/login");
+      } else {
+        alert(
+          "Failed to update title: " +
+            (error.response?.data?.message || "Unknown error")
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -159,7 +180,7 @@ const History = () => {
             <div className="flex items-center justify-center group">
               <div className="relative">
                 <img
-                  src={Logo}
+                  src={LOGO_URL}
                   className="h-12 transition-transform duration-300 group-hover:scale-110"
                   alt="Logo"
                 />
@@ -293,9 +314,7 @@ const History = () => {
         {/* Footer */}
         <div className="sticky bottom-0 bg-gradient-to-t from-white/95 to-white/80 backdrop-blur-lg border-t border-white/30 p-4">
           <div className="space-y-3">
-            <button
-              className="group relative w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white py-3 rounded-2xl hover:from-amber-500 hover:to-orange-600 text-sm font-medium transition-all duration-300 disabled:from-gray-400 disabled:to-gray-500 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:cursor-not-allowed overflow-hidden cursor-pointer"
-            >
+            <button className="group relative w-full bg-gradient-to-r from-amber-400 to-orange-500 text-white py-3 rounded-2xl hover:from-amber-500 hover:to-orange-600 text-sm font-medium transition-all duration-300 disabled:from-gray-400 disabled:to-gray-500 shadow-lg hover:shadow-xl transform hover:-translate-y-1 disabled:cursor-not-allowed overflow-hidden cursor-pointer">
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative z-10 flex items-center justify-center gap-2">
                 <Sparkles size={16} className="animate-pulse" />

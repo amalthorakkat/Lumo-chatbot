@@ -184,7 +184,9 @@ import {
   updateSessionTitle,
 } from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
-import Logo from "../../assets/LOGO.png";
+
+const LOGO_URL =
+  "https://i.postimg.cc/RhqzpXz5/Gemini-Generated-Image-kyplvxkyplvxkypl-1.png";
 
 const ChatWindow = () => {
   const [input, setInput] = useState("");
@@ -225,6 +227,9 @@ const ChatWindow = () => {
     setInput("");
 
     try {
+      console.log(
+        `Sending message: sessionId=${currentSessionId}, message=${userMessage}`
+      );
       const response = await api.post("/chat/message", {
         message: userMessage,
         sessionId: currentSessionId,
@@ -237,6 +242,7 @@ const ChatWindow = () => {
         })
       );
     } catch (err) {
+      console.error("Send Message Error:", err);
       if (err.response?.status === 401) {
         dispatch(
           addMessage({
@@ -246,26 +252,48 @@ const ChatWindow = () => {
         );
         dispatch(logout());
         navigate("/login");
-        return;
-      }
-      if (err.response?.status === 503 || err.response?.status === 500) {
+      } else if (err.response?.status === 403) {
         dispatch(
           addMessage({
             sender: "bot",
-            text: err.response.data.message,
+            text: "Unauthorized: This chat session does not belong to you. Starting a new session.",
           })
         );
-        dispatch(
-          updateSessionTitle({
-            sessionId: currentSessionId,
-            title: err.response.data.title,
-          })
-        );
+        // Optionally, trigger a new session creation
+        try {
+          const response = await api.post("/chat/new");
+          dispatch(
+            setCurrentSession({
+              sessionId: response.data.sessionId,
+              messages: [],
+            })
+          );
+          dispatch(
+            updateSessionTitle({
+              sessionId: response.data.sessionId,
+              title: response.data.title,
+            })
+          );
+        } catch (newSessionErr) {
+          dispatch(
+            addMessage({
+              sender: "bot",
+              text: "Failed to start a new session. Please try logging out and back in.",
+            })
+          );
+        }
       } else if (err.response?.status === 404) {
         dispatch(
           addMessage({
             sender: "bot",
-            text: "The AI model is not available. Your message has been saved.",
+            text: "Session not found. Please start a new chat.",
+          })
+        );
+      } else if (err.response?.status === 503 || err.response?.status === 500) {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text: err.response.data.message,
           })
         );
         dispatch(
@@ -296,7 +324,7 @@ const ChatWindow = () => {
             <div className="flex items-center justify-center group">
               <div className="relative">
                 <img
-                  src={Logo}
+                  src={LOGO_URL}
                   className="h-12 transition-transform duration-300 group-hover:scale-110"
                   alt="Logo"
                 />

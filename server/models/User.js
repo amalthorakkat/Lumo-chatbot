@@ -9,11 +9,29 @@ const userSchema = new mongoose.Schema({
     trim: true,
     lowercase: true,
   },
+  username: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    minlength: 3,
+  },
+  name: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   password: {
     type: String,
     required: true,
     minlength: 6,
   },
+  isVerified: {
+    type: Boolean,
+    default: false,
+  },
+  verificationToken: String,
+  verificationTokenExpiry: Date,
 });
 
 userSchema.pre("save", async function (next) {
