@@ -11,9 +11,7 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
-      "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
-      "https://lumo-chatbot-sigma.vercel.app",
+      "https://lumo-chatbot-client.onrender.com",
     ],
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
