@@ -507,7 +507,7 @@ const ChatWindow = () => {
                   ></div>
                 </div>
                 <span className="text-slate-600 text-sm font-medium">
-                  AI is thinking...
+                  Lumo is thinking...
                 </span>
               </div>
             </div>
