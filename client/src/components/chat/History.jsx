@@ -266,7 +266,7 @@ const History = () => {
                           {session.title}
                         </span>
                       </div>
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
+                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 md:transition-all md:duration-300 md:transform md:translate-x-2 md:group-hover:translate-x-0">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
