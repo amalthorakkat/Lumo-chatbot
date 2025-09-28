@@ -11,13 +11,17 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
-      "lumo-chatbot-sigma.vercel.app",
+      "https://lumo-chatbot-cju07m72f-amal-thorakkats-projects.vercel.app",
       "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
     ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.get("/test", (req, res) => res.json({ message: "Server is alive" }));
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
