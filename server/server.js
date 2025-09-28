@@ -9,7 +9,11 @@ const app = express();
 
 app.use(
   cors({
-    origin: ["http://localhost:5173", "lumo-chatbot-sigma.vercel.app"],
+    origin: [
+      "http://localhost:5173",
+      "lumo-chatbot-sigma.vercel.app",
+      "https://lumo-chatbot-git-main-amal-thorakkats-projects.vercel.app",
+    ],
     credentials: true,
   })
 );
