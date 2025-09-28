@@ -176,402 +176,6 @@
 
 
 
-// import { useState, useEffect, useRef } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import { User, Bot, Send, Sparkles } from "lucide-react";
-// import api from "../../utils/api";
-// import {
-//   addMessage,
-//   setLoading,
-//   updateSessionTitle,
-// } from "../../redux/slices/chatSlice";
-// import { logout } from "../../redux/slices/authSlice";
-
-// const LOGO_URL =
-//   "https://i.postimg.cc/RhqzpXz5/Gemini-Generated-Image-kyplvxkyplvxkypl-1.png";
-
-// const ChatWindow = () => {
-//   const [input, setInput] = useState("");
-//   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-//   const messages = useSelector((state) => state.chat.messages);
-//   const loading = useSelector((state) => state.chat.loading);
-//   const currentSessionId = useSelector((state) => state.chat.currentSessionId);
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const messagesEndRef = useRef(null);
-//   const textareaRef = useRef(null);
-
-//   useEffect(() => {
-//     const handleResize = () => {
-//       setIsMobile(window.innerWidth < 768);
-//     };
-//     window.addEventListener("resize", handleResize);
-//     return () => window.removeEventListener("resize", handleResize);
-//   }, []);
-
-//   useEffect(() => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-//   }, [messages]);
-
-//   useEffect(() => {
-//     if (!input && textareaRef.current) {
-//       textareaRef.current.style.height = "auto";
-//     }
-//   }, [input]);
-
-//   const handleSend = async (e) => {
-//     e.preventDefault();
-//     const userMessage = input.trim();
-//     if (!userMessage || !currentSessionId) return;
-
-//     dispatch(addMessage({ sender: "user", text: userMessage }));
-//     dispatch(setLoading(true));
-//     setInput("");
-
-//     try {
-//       console.log(
-//         `Sending message: sessionId=${currentSessionId}, message=${userMessage}`
-//       );
-//       const response = await api.post("/chat/message", {
-//         message: userMessage,
-//         sessionId: currentSessionId,
-//       });
-//       dispatch(addMessage({ sender: "bot", text: response.data.reply }));
-//       dispatch(
-//         updateSessionTitle({
-//           sessionId: currentSessionId,
-//           title: response.data.title,
-//         })
-//       );
-//     } catch (err) {
-//       console.error("Send Message Error:", err);
-//       if (err.response?.status === 401) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: "Session expired. Please log in again.",
-//           })
-//         );
-//         dispatch(logout());
-//         navigate("/login");
-//       } else if (err.response?.status === 403) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: "Unauthorized: This chat session does not belong to you. Starting a new session.",
-//           })
-//         );
-//         try {
-//           const response = await api.post("/chat/new");
-//           dispatch(
-//             setCurrentSession({
-//               sessionId: response.data.sessionId,
-//               messages: [],
-//             })
-//           );
-//           dispatch(
-//             updateSessionTitle({
-//               sessionId: response.data.sessionId,
-//               title: response.data.title,
-//             })
-//           );
-//         } catch (newSessionErr) {
-//           dispatch(
-//             addMessage({
-//               sender: "bot",
-//               text: "Failed to start a new session. Please try logging out and back in.",
-//             })
-//           );
-//         }
-//       } else if (err.response?.status === 404) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: "Session not found. Please start a new chat.",
-//           })
-//         );
-//       } else if (err.response?.status === 503 || err.response?.status === 500) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: err.response.data.message,
-//           })
-//         );
-//         dispatch(
-//           updateSessionTitle({
-//             sessionId: currentSessionId,
-//             title: err.response.data.title,
-//           })
-//         );
-//       } else {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text:
-//               err.response?.data?.message || "Error: Could not get response.",
-//           })
-//         );
-//       }
-//     } finally {
-//       dispatch(setLoading(false));
-//     }
-//   };
-
-//   return (
-//     <div className="flex flex-col h-full bg-gray-50 font-sans">
-//       <div className="sticky top-0 bg-white shadow-sm border-b border-gray-100 p-4 z-10">
-//         <div className="flex items-center justify-center max-w-7xl mx-auto">
-//           {isMobile ? (
-//             <div className="flex items-center justify-center w-full">
-//               <div className="relative">
-//                 <img
-//                   src={LOGO_URL}
-//                   className="h-12 w-auto max-w-[120px] object-contain transition-transform duration-300 hover:scale-105"
-//                   alt="Logo"
-//                   style={{ display: "block" }}
-//                 />
-//                 <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 rounded-full blur-lg opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-//               </div>
-//             </div>
-//           ) : (
-//             <div className="flex items-center gap-3">
-//               <div className="relative">
-//                 <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-//                   <Bot size={20} className="text-white" />
-//                 </div>
-//               </div>
-//               <div>
-//                 <h2 className="text-xl font-bold text-gray-900">
-//                   AI Assistant
-//                 </h2>
-//                 <p className="text-sm text-gray-500">
-//                   {loading ? "Processing..." : "Ready to assist"}
-//                 </p>
-//               </div>
-//             </div>
-//           )}
-//         </div>
-//       </div>
-
-//       <div className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${isMobile ? 'pb-24' : 'pb-6'}`}>
-//         {currentSessionId ? (
-//           <>
-//             {messages.length === 0 && (
-//               <div className="flex flex-col items-center justify-center h-[600px] space-y-4 text-center">
-//                 <div className="relative">
-//                   <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center shadow-sm">
-//                     <Sparkles
-//                       size={28}
-//                       className="text-indigo-600 animate-pulse"
-//                     />
-//                   </div>
-//                 </div>
-//                 <div className="space-y-2">
-//                   <h3 className="text-2xl font-bold text-gray-900">
-//                     Start a conversation
-//                   </h3>
-//                   <p className="text-gray-600 max-w-md">
-//                     Ask anything! I'm here to assist with questions, creative tasks, analysis, and more.
-//                   </p>
-//                 </div>
-//                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
-//                   {[
-//                     "💡 Creative brainstorming",
-//                     "📊 Data analysis help",
-//                     "✍️ Writing assistance",
-//                     "🔍 Research support",
-//                   ].map((suggestion, index) => (
-//                     <div
-//                       key={index}
-//                       className="p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:bg-indigo-50/50 cursor-pointer transition-all duration-300 text-sm text-gray-700 hover:text-indigo-700"
-//                       onClick={() =>
-//                         setInput(suggestion.split(" ").slice(1).join(" "))
-//                       }
-//                     >
-//                       {suggestion}
-//                     </div>
-//                   ))}
-//                 </div>
-//               </div>
-//             )}
-
-//             {messages.map((msg, index) => (
-//               <div
-//                 key={index}
-//                 className={`flex items-start gap-3 mb-4 animate-fadeIn ${
-//                   msg.sender === "user" ? "justify-end" : "justify-start"
-//                 }`}
-//                 style={{
-//                   animationDelay: `${index * 100}ms`,
-//                   animation: "fadeInUp 0.4s ease-out forwards",
-//                 }}
-//               >
-//                 {msg.sender === "bot" && (
-//                   <div className="relative flex-shrink-0">
-//                     <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-//                       <Bot size={16} className="text-white" />
-//                     </div>
-//                   </div>
-//                 )}
-
-//                 <div
-//                   className={`group relative max-w-[80%] rounded-lg shadow-sm transition-all duration-300 ${
-//                     msg.sender === "user"
-//                       ? "bg-gradient-to-br from-indigo-600 to-blue-600 text-white"
-//                       : "bg-white text-gray-800 border border-gray-100"
-//                   } hover:shadow-md`}
-//                 >
-//                   <div className="p-4">
-//                     <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-//                       {msg.text}
-//                     </div>
-//                     {msg.createdAt && (
-//                       <div
-//                         className={`text-xs mt-2 opacity-70 ${
-//                           msg.sender === "user"
-//                             ? "text-indigo-100"
-//                             : "text-gray-500"
-//                         }`}
-//                       >
-//                         {new Date(msg.createdAt).toLocaleTimeString()}
-//                       </div>
-//                     )}
-//                   </div>
-//                 </div>
-
-//                 {msg.sender === "user" && (
-//                   <div className="relative flex-shrink-0">
-//                     <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md">
-//                       <User size={16} className="text-white" />
-//                     </div>
-//                   </div>
-//                 )}
-//               </div>
-//             ))}
-//           </>
-//         ) : (
-//           <div className="flex flex-col items-center justify-center h-full space-y-4">
-//             <div className="relative">
-//               <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-//             </div>
-//             <div className="text-center space-y-2">
-//               <div className="text-gray-600 font-medium">
-//                 Preparing your chat session...
-//               </div>
-//               <div className="flex space-x-1 justify-center">
-//                 <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-//                 <div
-//                   className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-//                   style={{ animationDelay: "0.1s" }}
-//                 ></div>
-//                 <div
-//                   className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-//                   style={{ animationDelay: "0.2s" }}
-//                 ></div>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-
-//         {loading && (
-//           <div className="flex justify-start items-center gap-3 mb-4 animate-fadeIn">
-//             <div className="relative">
-//               <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-//                 <Bot size={16} className="text-white" />
-//               </div>
-//             </div>
-//             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 max-w-[80%]">
-//               <div className="flex items-center gap-3">
-//                 <div className="flex space-x-1">
-//                   <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-//                   <div
-//                     className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-//                     style={{ animationDelay: "0.1s" }}
-//                   ></div>
-//                   <div
-//                     className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-//                     style={{ animationDelay: "0.2s" }}
-//                   ></div>
-//                 </div>
-//                 <span className="text-gray-600 text-sm font-medium">
-//                   Lumo is thinking...
-//                 </span>
-//               </div>
-//             </div>
-//           </div>
-//         )}
-//         <div ref={messagesEndRef} />
-//       </div>
-
-//       <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0' : 'sticky bottom-0'} bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}>
-//         <div className="relative max-w-4xl mx-auto">
-//           <div className="relative flex items-end gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-300 transition-all duration-300">
-//             <textarea
-//               ref={textareaRef}
-//               value={input}
-//               onChange={(e) => setInput(e.target.value)}
-//               onKeyPress={(e) => {
-//                 if (e.key === "Enter" && !e.shiftKey) {
-//                   e.preventDefault();
-//                   handleSend(e);
-//                 }
-//               }}
-//               className="w-full max-h-32 min-h-[48px] px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-gray-800 placeholder-gray-400 text-base leading-relaxed font-medium"
-//               placeholder={
-//                 currentSessionId
-//                   ? "Type your message..."
-//                   : "Waiting for session..."
-//               }
-//               disabled={loading || !currentSessionId}
-//               rows={1}
-//               style={{
-//                 minHeight: "48px",
-//                 height: "auto",
-//                 maxHeight: "128px",
-//               }}
-//               onInput={(e) => {
-//                 e.target.style.height = "auto";
-//                 e.target.style.height = `${Math.min(
-//                   e.target.scrollHeight,
-//                   128
-//                 )}px`;
-//               }}
-//             />
-//             <button
-//               type="submit"
-//               onClick={handleSend}
-//               className="group relative flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
-//               disabled={loading || !input.trim() || !currentSessionId}
-//             >
-//               <div className="relative z-10 flex items-center justify-center w-full h-full">
-//                 {loading ? (
-//                   <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-//                 ) : (
-//                   <Send
-//                     size={18}
-//                     className="transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"
-//                   />
-//                 )}
-//               </div>
-//             </button>
-//           </div>
-//           <div className="flex justify-between items-center mt-2">
-//             {input && (
-//               <span className="text-xs text-gray-400">
-//                 {input.length} characters
-//               </span>
-//             )}
-//           </div>
-//         </div>
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default ChatWindow;
-
-
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -590,7 +194,6 @@ const LOGO_URL =
 const ChatWindow = () => {
   const [input, setInput] = useState("");
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [keyboardHeight, setKeyboardHeight] = useState(0); // Track keyboard height
   const messages = useSelector((state) => state.chat.messages);
   const loading = useSelector((state) => state.chat.loading);
   const currentSessionId = useSelector((state) => state.chat.currentSessionId);
@@ -598,9 +201,7 @@ const ChatWindow = () => {
   const navigate = useNavigate();
   const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
-  const inputContainerRef = useRef(null); // Ref for the input container
 
-  // Handle window resize to detect mobile view
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -609,51 +210,15 @@ const ChatWindow = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Scroll to the latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // Reset textarea height when input is cleared
   useEffect(() => {
     if (!input && textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
   }, [input]);
-
-  // Handle keyboard visibility using visualViewport
-  useEffect(() => {
-    if (!isMobile) return;
-
-    const handleViewportChange = () => {
-      if (window.visualViewport) {
-        const viewportHeight = window.visualViewport.height;
-        const windowHeight = window.innerHeight;
-        const keyboardHeight = windowHeight - viewportHeight;
-        setKeyboardHeight(keyboardHeight > 0 ? keyboardHeight : 0);
-      }
-    };
-
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", handleViewportChange);
-      window.visualViewport.addEventListener("scroll", handleViewportChange);
-    }
-
-    return () => {
-      if (window.visualViewport) {
-        window.visualViewport.removeEventListener("resize", handleViewportChange);
-        window.visualViewport.removeEventListener("scroll", handleViewportChange);
-      }
-    };
-  }, [isMobile]);
-
-  // Adjust input container position based on keyboard height
-  useEffect(() => {
-    if (inputContainerRef.current && isMobile) {
-      inputContainerRef.current.style.transform = `translateY(-${keyboardHeight}px)`;
-      inputContainerRef.current.style.transition = "transform 0.2s ease-out";
-    }
-  }, [keyboardHeight, isMobile]);
 
   const handleSend = async (e) => {
     e.preventDefault();
@@ -665,6 +230,9 @@ const ChatWindow = () => {
     setInput("");
 
     try {
+      console.log(
+        `Sending message: sessionId=${currentSessionId}, message=${userMessage}`
+      );
       const response = await api.post("/chat/message", {
         message: userMessage,
         sessionId: currentSessionId,
@@ -678,8 +246,73 @@ const ChatWindow = () => {
       );
     } catch (err) {
       console.error("Send Message Error:", err);
-      // Error handling remains unchanged
-      // ... (your existing error handling code)
+      if (err.response?.status === 401) {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text: "Session expired. Please log in again.",
+          })
+        );
+        dispatch(logout());
+        navigate("/login");
+      } else if (err.response?.status === 403) {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text: "Unauthorized: This chat session does not belong to you. Starting a new session.",
+          })
+        );
+        try {
+          const response = await api.post("/chat/new");
+          dispatch(
+            setCurrentSession({
+              sessionId: response.data.sessionId,
+              messages: [],
+            })
+          );
+          dispatch(
+            updateSessionTitle({
+              sessionId: response.data.sessionId,
+              title: response.data.title,
+            })
+          );
+        } catch (newSessionErr) {
+          dispatch(
+            addMessage({
+              sender: "bot",
+              text: "Failed to start a new session. Please try logging out and back in.",
+            })
+          );
+        }
+      } else if (err.response?.status === 404) {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text: "Session not found. Please start a new chat.",
+          })
+        );
+      } else if (err.response?.status === 503 || err.response?.status === 500) {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text: err.response.data.message,
+          })
+        );
+        dispatch(
+          updateSessionTitle({
+            sessionId: currentSessionId,
+            title: err.response.data.title,
+          })
+        );
+      } else {
+        dispatch(
+          addMessage({
+            sender: "bot",
+            text:
+              err.response?.data?.message || "Error: Could not get response.",
+          })
+        );
+      }
     } finally {
       dispatch(setLoading(false));
     }
@@ -687,29 +320,191 @@ const ChatWindow = () => {
 
   return (
     <div className="flex flex-col h-full bg-gray-50 font-sans">
-      {/* Header remains unchanged */}
       <div className="sticky top-0 bg-white shadow-sm border-b border-gray-100 p-4 z-10">
-        {/* ... (your existing header code) */}
+        <div className="flex items-center justify-center max-w-7xl mx-auto">
+          {isMobile ? (
+            <div className="flex items-center justify-center w-full">
+              <div className="relative">
+                <img
+                  src={LOGO_URL}
+                  className="h-12 w-auto max-w-[120px] object-contain transition-transform duration-300 hover:scale-105"
+                  alt="Logo"
+                  style={{ display: "block" }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 rounded-full blur-lg opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                  <Bot size={20} className="text-white" />
+                </div>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-gray-900">
+                  AI Assistant
+                </h2>
+                <p className="text-sm text-gray-500">
+                  {loading ? "Processing..." : "Ready to assist"}
+                </p>
+              </div>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Messages area */}
-      <div
-        className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${
-          isMobile ? "pb-24" : "pb-6"
-        }`}
-      >
-        {/* ... (your existing messages rendering code) */}
+      <div className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${isMobile ? 'pb-24' : 'pb-6'}`}>
+        {currentSessionId ? (
+          <>
+            {messages.length === 0 && (
+              <div className="flex flex-col items-center justify-center h-[600px] space-y-4 text-center">
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center shadow-sm">
+                    <Sparkles
+                      size={28}
+                      className="text-indigo-600 animate-pulse"
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Start a conversation
+                  </h3>
+                  <p className="text-gray-600 max-w-md">
+                    Ask anything! I'm here to assist with questions, creative tasks, analysis, and more.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
+                  {[
+                    "💡 Creative brainstorming",
+                    "📊 Data analysis help",
+                    "✍️ Writing assistance",
+                    "🔍 Research support",
+                  ].map((suggestion, index) => (
+                    <div
+                      key={index}
+                      className="p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:bg-indigo-50/50 cursor-pointer transition-all duration-300 text-sm text-gray-700 hover:text-indigo-700"
+                      onClick={() =>
+                        setInput(suggestion.split(" ").slice(1).join(" "))
+                      }
+                    >
+                      {suggestion}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex items-start gap-3 mb-4 animate-fadeIn ${
+                  msg.sender === "user" ? "justify-end" : "justify-start"
+                }`}
+                style={{
+                  animationDelay: `${index * 100}ms`,
+                  animation: "fadeInUp 0.4s ease-out forwards",
+                }}
+              >
+                {msg.sender === "bot" && (
+                  <div className="relative flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                      <Bot size={16} className="text-white" />
+                    </div>
+                  </div>
+                )}
+
+                <div
+                  className={`group relative max-w-[80%] rounded-lg shadow-sm transition-all duration-300 ${
+                    msg.sender === "user"
+                      ? "bg-gradient-to-br from-indigo-600 to-blue-600 text-white"
+                      : "bg-white text-gray-800 border border-gray-100"
+                  } hover:shadow-md`}
+                >
+                  <div className="p-4">
+                    <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
+                      {msg.text}
+                    </div>
+                    {msg.createdAt && (
+                      <div
+                        className={`text-xs mt-2 opacity-70 ${
+                          msg.sender === "user"
+                            ? "text-indigo-100"
+                            : "text-gray-500"
+                        }`}
+                      >
+                        {new Date(msg.createdAt).toLocaleTimeString()}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {msg.sender === "user" && (
+                  <div className="relative flex-shrink-0">
+                    <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md">
+                      <User size={16} className="text-white" />
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <div className="relative">
+              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+            </div>
+            <div className="text-center space-y-2">
+              <div className="text-gray-600 font-medium">
+                Preparing your chat session...
+              </div>
+              <div className="flex space-x-1 justify-center">
+                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                <div
+                  className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.1s" }}
+                ></div>
+                <div
+                  className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                  style={{ animationDelay: "0.2s" }}
+                ></div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {loading && (
+          <div className="flex justify-start items-center gap-3 mb-4 animate-fadeIn">
+            <div className="relative">
+              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
+                <Bot size={16} className="text-white" />
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 max-w-[80%]">
+              <div className="flex items-center gap-3">
+                <div className="flex space-x-1">
+                  <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
+                  <div
+                    className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.1s" }}
+                  ></div>
+                  <div
+                    className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
+                    style={{ animationDelay: "0.2s" }}
+                  ></div>
+                </div>
+                <span className="text-gray-600 text-sm font-medium">
+                  Lumo is thinking...
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input container */}
-      <div
-        ref={inputContainerRef}
-        className={`${
-          isMobile ? "fixed bottom-0 left-0 right-0" : "sticky bottom-0"
-        } bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}
-        style={{ transition: "transform 0.2s ease-out" }}
-      >
+      <div className={`${isMobile ? 'fixed bottom-0 left-0 right-0' : 'sticky bottom-0'} bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}>
         <div className="relative max-w-4xl mx-auto">
           <div className="relative flex items-end gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-300 transition-all duration-300">
             <textarea
