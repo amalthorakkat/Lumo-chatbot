@@ -1,182 +1,9 @@
-// import { useState, useEffect, useRef } from "react";
-// import { useDispatch, useSelector } from "react-redux";
-// import { useNavigate } from "react-router-dom";
-// import { User, Bot } from "lucide-react";
-// import api from "../../utils/api";
-// import {
-//   addMessage,
-//   setLoading,
-//   updateSessionTitle,
-// } from "../../redux/slices/chatSlice";
-// import { logout } from "../../redux/slices/authSlice";
-
-// const ChatWindow = () => {
-//   const [input, setInput] = useState("");
-//   const messages = useSelector((state) => state.chat.messages);
-//   const loading = useSelector((state) => state.chat.loading);
-//   const currentSessionId = useSelector((state) => state.chat.currentSessionId);
-//   const dispatch = useDispatch();
-//   const navigate = useNavigate();
-//   const messagesEndRef = useRef(null);
-
-//   useEffect(() => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-//   }, [messages]);
-
-//   const handleSend = async (e) => {
-//     e.preventDefault();
-//     const userMessage = input.trim();
-//     if (!userMessage || !currentSessionId) return;
-
-//     dispatch(addMessage({ sender: "user", text: userMessage }));
-//     dispatch(setLoading(true));
-//     setInput("");
-
-//     try {
-//       const response = await api.post("/chat/message", {
-//         message: userMessage,
-//         sessionId: currentSessionId,
-//       });
-//       dispatch(addMessage({ sender: "bot", text: response.data.reply }));
-//       dispatch(
-//         updateSessionTitle({
-//           sessionId: currentSessionId,
-//           title: response.data.title,
-//         })
-//       );
-//     } catch (err) {
-//       if (err.response?.status === 401) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: "Session expired. Please log in again.",
-//           })
-//         );
-//         dispatch(logout());
-//         navigate("/login");
-//         return;
-//       }
-//       if (err.response?.status === 503 || err.response?.status === 500) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: err.response.data.message,
-//           })
-//         );
-//         dispatch(
-//           updateSessionTitle({
-//             sessionId: currentSessionId,
-//             title: err.response.data.title,
-//           })
-//         );
-//       } else if (err.response?.status === 404) {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text: "The AI model is not available. Your message has been saved.",
-//           })
-//         );
-//         dispatch(
-//           updateSessionTitle({
-//             sessionId: currentSessionId,
-//             title: err.response.data.title,
-//           })
-//         );
-//       } else {
-//         dispatch(
-//           addMessage({
-//             sender: "bot",
-//             text:
-//               err.response?.data?.message || "Error: Could not get response.",
-//           })
-//         );
-//       }
-//     } finally {
-//       dispatch(setLoading(false));
-//     }
-//   };
-
-//   return (
-//     <div className="flex flex-col h-screen w-full bg-white shadow-lg md:rounded-lg">
-//       <div className="flex-1 p-4 sm:p-6 overflow-y-auto">
-//         {currentSessionId ? (
-//           messages.map((msg, index) => (
-//             <div
-//               key={index}
-//               className={`flex items-start gap-3 mb-4 ${
-//                 msg.sender === "user" ? "justify-end" : "justify-start"
-//               }`}
-//             >
-//               {msg.sender === "bot" && (
-//                 <Bot size={24} className="text-blue-500 flex-shrink-0 mt-1" />
-//               )}
-//               <div
-//                 className={`max-w-[70%] p-3 rounded-lg shadow-sm ${
-//                   msg.sender === "user"
-//                     ? "bg-blue-500 text-white"
-//                     : "bg-gray-100 text-gray-800"
-//                 }`}
-//               >
-//                 <div className="text-sm">{msg.text}</div>
-//                 {msg.createdAt && (
-//                   <div className="text-xs text-gray-500 mt-1">
-//                     {new Date(msg.createdAt).toLocaleTimeString()}
-//                   </div>
-//                 )}
-//               </div>
-//               {msg.sender === "user" && (
-//                 <User size={24} className="text-blue-500 flex-shrink-0 mt-1" />
-//               )}
-//             </div>
-//           ))
-//         ) : (
-//           <div className="text-center text-gray-500 py-8">
-//             <div className="animate-spin mx-auto h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full mb-3"></div>
-//             Select a chat session or start a new chat.
-//           </div>
-//         )}
-//         {loading && (
-//           <div className="flex justify-start items-center gap-2">
-//             <div className="animate-spin h-5 w-5 border-4 border-blue-500 border-t-transparent rounded-full"></div>
-//             <span className="text-gray-500 text-sm">Bot is typing...</span>
-//           </div>
-//         )}
-//         <div ref={messagesEndRef} />
-//       </div>
-//       <form
-//         onSubmit={handleSend}
-//         className="sticky bottom-0 bg-white border-t border-gray-200 p-4 sm:p-6"
-//       >
-//         <div className="flex items-center gap-2 w-full">
-//           <input
-//             type="text"
-//             value={input}
-//             onChange={(e) => setInput(e.target.value)}
-//             className="flex-1 px-4 py-2 border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-//             placeholder={
-//               currentSessionId ? "Type a message..." : "Waiting for session..."
-//             }
-//             disabled={loading || !currentSessionId}
-//           />
-//           <button
-//             type="submit"
-//             className="px-4 py-2 bg-blue-500 text-white rounded-full hover:bg-blue-600 disabled:bg-gray-400 transition duration-200"
-//             disabled={loading || !input.trim() || !currentSessionId}
-//           >
-//             Send
-//           </button>
-//         </div>
-//       </form>
-//     </div>
-//   );
-// };
-
-// export default ChatWindow;
-
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { User, Bot, Send, Sparkles, Loader2 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import api from "../../utils/api";
 import {
   addMessage,
@@ -365,14 +192,114 @@ const ChatWindow = () => {
                   </div>
 
                   <div
-                    className={`relative max-w-[80%] px-5 py-3.5 rounded-2xl shadow-sm ${
+                    className={`relative max-w-[85%] px-5 py-3.5 rounded-2xl shadow-sm ${
                       msg.sender === "user"
                         ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm"
                         : "bg-white/10 backdrop-blur-md border border-white/5 text-slate-200 rounded-tl-sm"
                     }`}
                   >
-                    <div className="text-base leading-relaxed whitespace-pre-wrap">
-                      {msg.text}
+                    {/* Markdown Rendering */}
+                    <div className="text-base leading-relaxed overflow-hidden">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                          // Headlines
+                          h1: ({ node, ...props }) => (
+                            <h1
+                              className="text-2xl font-bold mb-3 mt-4 first:mt-0"
+                              {...props}
+                            />
+                          ),
+                          h2: ({ node, ...props }) => (
+                            <h2
+                              className="text-xl font-bold mb-2 mt-3"
+                              {...props}
+                            />
+                          ),
+                          h3: ({ node, ...props }) => (
+                            <h3
+                              className="text-lg font-semibold mb-2 mt-2"
+                              {...props}
+                            />
+                          ),
+
+                          // Paragraphs and lists
+                          p: ({ node, ...props }) => (
+                            <p className="mb-2 last:mb-0" {...props} />
+                          ),
+                          ul: ({ node, ...props }) => (
+                            <ul className="list-disc ml-4 mb-3" {...props} />
+                          ),
+                          ol: ({ node, ...props }) => (
+                            <ol className="list-decimal ml-4 mb-3" {...props} />
+                          ),
+                          li: ({ node, ...props }) => (
+                            <li className="mb-1 pl-1" {...props} />
+                          ),
+
+                          // Text formatting
+                          strong: ({ node, ...props }) => (
+                            <strong
+                              className="font-bold text-indigo-200"
+                              {...props}
+                            />
+                          ),
+                          em: ({ node, ...props }) => (
+                            <em
+                              className="italic text-indigo-100/80"
+                              {...props}
+                            />
+                          ),
+                          blockquote: ({ node, ...props }) => (
+                            <blockquote
+                              className="border-l-4 border-indigo-500/50 pl-4 py-1 my-2 bg-indigo-500/10 italic rounded-r-md"
+                              {...props}
+                            />
+                          ),
+
+                          // Code blocks
+                          code: ({
+                            node,
+                            inline,
+                            className,
+                            children,
+                            ...props
+                          }) => {
+                            const match = /language-(\w+)/.exec(
+                              className || ""
+                            );
+                            return !inline ? (
+                              <div className="relative group my-3">
+                                <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur opacity-0 group-hover:opacity-100 transition duration-500"></div>
+                                <div className="relative bg-[#1e293b] rounded-lg border border-white/10 overflow-hidden shadow-xl">
+                                  {match && (
+                                    <div className="px-4 py-1.5 bg-white/5 border-b border-white/5 text-xs text-slate-400 flex items-center justify-between">
+                                      <span>{match[1]}</span>
+                                    </div>
+                                  )}
+                                  <div className="p-4 overflow-x-auto">
+                                    <code
+                                      className="!whitespace-pre font-mono text-sm text-blue-100"
+                                      {...props}
+                                    >
+                                      {children}
+                                    </code>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <code
+                                className="bg-white/10 px-1.5 py-0.5 rounded text-sm font-mono text-indigo-200 border border-white/5"
+                                {...props}
+                              >
+                                {children}
+                              </code>
+                            );
+                          },
+                        }}
+                      >
+                        {msg.text}
+                      </ReactMarkdown>
                     </div>
                     <div
                       className={`text-[10px] mt-1.5 opacity-60 font-medium ${
