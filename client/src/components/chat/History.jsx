@@ -356,7 +356,6 @@
 
 // export default History;
 
-
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -419,7 +418,10 @@ const History = () => {
       setIsOpen(false);
     } catch (error) {
       console.error("New Chat Error:", error);
-      alert("Failed to create new chat: " + (error.response?.data?.message || "Unknown error"));
+      alert(
+        "Failed to create new chat: " +
+          (error.response?.data?.message || "Unknown error")
+      );
     } finally {
       setLoading(false);
     }
@@ -519,163 +521,176 @@ const History = () => {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className={`md:hidden fixed top-4 left-4 z-50 p-2 rounded-full bg-white/90 backdrop-blur-md border border-gray-100 shadow-sm hover:bg-white transition-all duration-300 ${
+        className={`md:hidden fixed top-4 left-4 z-50 p-2.5 rounded-xl bg-slate-900/90 backdrop-blur-md border border-slate-700 shadow-lg text-slate-200 hover:bg-slate-800 transition-all duration-300 ${
           isOpen ? "hidden" : "block"
         }`}
         aria-label="Open chat history"
       >
-        <Menu size={24} className="text-gray-600" />
+        <Menu size={20} />
       </button>
+
+      {/* Overlay for mobile */}
+      {isOpen && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden transition-opacity"
+          onClick={() => setIsOpen(false)}
+        />
+      )}
 
       <div
         ref={sidebarRef}
-        className={`fixed inset-y-0 left-0 z-40 w-72 bg-white/95 backdrop-blur-md border-r border-gray-100 shadow-lg flex flex-col transition-transform duration-300 ease-in-out transform ${
+        className={`fixed inset-y-0 left-0 z-40 w-72 bg-slate-950/80 backdrop-blur-xl border-r border-white/10 flex flex-col transition-transform duration-300 ease-in-out transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } md:static md:w-80 md:translate-x-0`}
       >
-        <div className="sticky top-0 bg-white/95 backdrop-blur-md border-b border-gray-100 p-4">
-          <div className="flex items-center justify-between">
-            <div className="relative">
-              <img
-                src={LOGO_URL}
-                className="h-10 w-auto object-contain transition-transform duration-300 hover:scale-105"
-                alt="AI Assistant Logo"
-                aria-hidden="true"
-              />
+        {/* Header */}
+        <div className="p-4 border-b border-white/5 bg-slate-950/50 backdrop-blur-md">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center">
+                <Sparkles size={16} className="text-indigo-400" />
+              </div>
+              <h1 className="text-lg font-bold bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-400">
+                Lumo Chat
+              </h1>
             </div>
             <button
               onClick={() => setIsOpen(false)}
-              className="md:hidden p-2 rounded-full hover:bg-gray-100 transition-all duration-300"
-              disabled={loading}
+              className="md:hidden p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
               aria-label="Close chat history"
             >
-              <X size={20} className="text-gray-600" />
+              <X size={18} />
             </button>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-4 space-y-3 scrollbar-thin">
+        {/* Action Button */}
+        <div className="p-4 pb-2">
           <button
             onClick={handleNewChat}
-            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-all duration-300 shadow-sm hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/30 transition-all duration-300 group ring-1 ring-white/20"
             disabled={loading}
-            aria-label="Start a new chat"
           >
             {loading ? (
-              <div className="w-5 h-5 border-2 border-white/50 border-t-white rounded-full animate-spin"></div>
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
             ) : (
-              <Plus size={20} className="transition-transform duration-300 hover:rotate-90" />
+              <Plus
+                size={18}
+                className="group-hover:rotate-90 transition-transform"
+              />
             )}
-            <span className="text-sm font-medium">
-              {loading ? "Creating..." : "New Chat"}
-            </span>
+            <span className="font-medium">New Chat</span>
           </button>
+        </div>
 
+        {/* Session List */}
+        <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1 scrollbar-thin scrollbar-thumb-slate-700/50 scrollbar-track-transparent">
           {loading ? (
             <div className="flex justify-center p-6">
-              <div className="w-8 h-8 border-3 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
+              <div className="w-6 h-6 border-2 border-indigo-500/30 border-t-indigo-500 rounded-full animate-spin"></div>
             </div>
           ) : sessions.length > 0 ? (
-            <div className="space-y-2">
+            <div className="space-y-1">
+              <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Recent Activity
+              </div>
               {sessions.map((session, index) => (
                 <div
                   key={session._id}
-                  className={`group flex items-center p-3 rounded-lg transition-all duration-300 hover:bg-indigo-50/50 ${
+                  className={`group relative flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-all duration-200 border border-transparent ${
                     session._id === currentSessionId
-                      ? "bg-indigo-50 border border-indigo-200 shadow-sm"
-                      : "bg-white"
+                      ? "bg-white/10 border-white/5 text-white"
+                      : "text-slate-400 hover:bg-white/5 hover:text-slate-200"
                   }`}
                   onClick={() => handleSelectSession(session._id)}
                   style={{ animationDelay: `${index * 50}ms` }}
-                  role="button"
-                  tabIndex={0}
-                  onKeyPress={(e) => e.key === "Enter" && handleSelectSession(session._id)}
-                  aria-label={`Select chat session: ${session.title}`}
                 >
-                  {editingSessionId === session._id ? (
-                    <input
-                      type="text"
-                      value={newTitle}
-                      onChange={(e) => setNewTitle(e.target.value)}
-                      onBlur={() => handleSaveTitle(session._id)}
-                      onKeyPress={(e) =>
-                        e.key === "Enter" && handleSaveTitle(session._id)
-                      }
-                      className="flex-1 bg-white/80 text-gray-800 rounded-lg px-3 py-2 text-sm border border-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                      autoFocus
-                      aria-label="Edit session title"
-                    />
-                  ) : (
-                    <>
-                      <div className="flex-1 min-w-0">
-                        <span
-                          className="block truncate text-sm font-medium text-gray-700 hover:text-gray-900"
-                          title={session.title}
-                        >
-                          {session.title}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300 opacity-100">
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEditTitle(session._id, session.title);
-                          }}
-                          className="p-1.5 rounded-full hover:bg-indigo-100 transition-all duration-200"
-                          aria-label={`Edit title for ${session.title}`}
-                        >
-                          <Edit2 size={14} className="text-gray-500 hover:text-indigo-600" />
-                        </button>
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            openDeleteModal(session._id);
-                          }}
-                          className="p-1.5 rounded-full hover:bg-red-100 transition-all duration-200"
-                          aria-label={`Delete session ${session.title}`}
-                        >
-                          <Trash2 size={14} className="text-gray-500 hover:text-red-600" />
-                        </button>
-                      </div>
-                    </>
+                  <div className="flex-1 min-w-0">
+                    {editingSessionId === session._id ? (
+                      <input
+                        type="text"
+                        value={newTitle}
+                        onChange={(e) => setNewTitle(e.target.value)}
+                        onBlur={() => handleSaveTitle(session._id)}
+                        onKeyPress={(e) =>
+                          e.key === "Enter" && handleSaveTitle(session._id)
+                        }
+                        className="w-full bg-slate-900 text-white rounded px-2 py-1 text-sm border border-indigo-500/50 focus:outline-none"
+                        autoFocus
+                      />
+                    ) : (
+                      <p className="truncate text-sm font-medium">
+                        {session.title}
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Actions */}
+                  {session._id === currentSessionId && (
+                    <div className="flex items-center gap-1 opacity-100 transition-opacity">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEditTitle(session._id, session.title);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-white/10 text-slate-500 hover:text-indigo-400 transition-colors"
+                      >
+                        <Edit2 size={13} />
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openDeleteModal(session._id);
+                        }}
+                        className="p-1.5 rounded-lg hover:bg-red-500/20 text-slate-500 hover:text-red-400 transition-colors"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
                   )}
                 </div>
               ))}
             </div>
           ) : (
-            <div className="text-center p-8 space-y-4">
-              <div className="w-12 h-12 mx-auto rounded-full bg-indigo-50 flex items-center justify-center">
-                <span className="text-xl">💬</span>
+            <div className="text-center py-12 px-4">
+              <div className="w-12 h-12 mx-auto rounded-full bg-slate-800/50 border border-white/5 flex items-center justify-center mb-3">
+                <Sparkles size={20} className="text-slate-600" />
               </div>
-              <p className="text-gray-500 text-sm">
-                No chat history yet.<br />
-                Start your first conversation!
+              <p className="text-slate-500 text-sm">
+                No history yet. Start a new conversation to see it here.
               </p>
             </div>
           )}
         </div>
 
-        <div className="sticky bottom-0 bg-white/95 backdrop-blur-md border-t border-gray-100 p-4">
-          <div className="space-y-3">
-            <button
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-amber-500 text-white rounded-lg hover:bg-amber-600 transition-all duration-300 shadow-sm hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
-              aria-label="Upgrade account"
-            >
-              <Sparkles size={16} className="animate-pulse" />
-              Upgrade Account
+        {/* Footer */}
+        <div className="p-4 border-t border-white/5 bg-slate-950/50 backdrop-blur-md space-y-3">
+          <div className="p-3 rounded-xl bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border border-indigo-500/20">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="p-1.5 rounded-lg bg-indigo-500/20 text-indigo-400">
+                <Sparkles size={14} />
+              </div>
+              <span className="text-xs font-semibold text-indigo-300">
+                Pro Plan
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mb-3">
+              Upgrade for advanced models and unlimited history.
+            </p>
+            <button className="w-full py-2 text-xs font-semibold bg-indigo-500 hover:bg-indigo-400 text-white rounded-lg transition-colors">
+              Upgrade Now
             </button>
-            {isAuthenticated && (
-              <button
-                onClick={handleLogout}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-all duration-300 shadow-sm hover:shadow-md disabled:bg-gray-400 disabled:cursor-not-allowed"
-                disabled={loading}
-                aria-label="Log out"
-              >
-                <LogOut size={16} />
-                Logout
-              </button>
-            )}
           </div>
+
+          {isAuthenticated && (
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-slate-400 hover:text-white hover:bg-white/5 rounded-xl transition-all text-sm font-medium"
+            >
+              <LogOut size={16} />
+              <span>Sign Out</span>
+            </button>
+          )}
         </div>
       </div>
 

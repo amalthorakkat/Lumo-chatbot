@@ -176,7 +176,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { User, Bot, Send, Sparkles } from "lucide-react";
+import { User, Bot, Send, Sparkles, Loader2 } from "lucide-react";
 import api from "../../utils/api";
 import {
   addMessage,
@@ -297,258 +297,175 @@ const ChatWindow = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gray-50 font-sans">
-      <div className="sticky top-0 bg-white shadow-sm border-b border-gray-100 p-4 z-10">
-        <div className="flex items-center justify-center max-w-7xl mx-auto">
-          {isMobile ? (
-            <div className="flex items-center justify-center w-full">
-              <div className="relative">
-                <img
-                  src={LOGO_URL}
-                  className="h-12 w-auto max-w-[120px] object-contain transition-transform duration-300 hover:scale-105"
-                  alt="Logo"
-                  style={{ display: "block" }}
-                />
-                <div className="absolute inset-0 bg-gradient-to-r from-indigo-300/20 to-blue-300/20 rounded-full blur-lg opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
-              </div>
-            </div>
-          ) : (
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-                  <Bot size={20} className="text-white" />
-                </div>
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  AI Assistant
-                </h2>
-                <p className="text-sm text-gray-500">
-                  {loading ? "Processing..." : "Ready to assist"}
-                </p>
-              </div>
-            </div>
-          )}
+    <div className="flex flex-col h-full relative">
+      {/* Header - Mobile Only (or sticky header if needed) */}
+      <div className="sticky top-0 z-20 md:hidden bg-slate-950/80 backdrop-blur-md border-b border-white/5 p-4">
+        <div className="flex items-center justify-center">
+          <h2 className="text-lg font-bold text-white">Lumo Chat</h2>
         </div>
       </div>
 
-      <div
-        className={`flex-1 p-4 sm:p-6 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100 ${
-          isMobile ? "pb-24" : "pb-6"
-        }`}
-      >
-        {currentSessionId ? (
-          <>
-            {messages.length === 0 && (
-              <div className="flex flex-col items-center justify-center h-[600px] space-y-4 text-center">
-                <div className="relative">
-                  <div className="w-16 h-16 bg-gradient-to-br from-indigo-100 to-blue-100 rounded-lg flex items-center justify-center shadow-sm">
-                    <Sparkles
-                      size={28}
-                      className="text-indigo-600 animate-pulse"
-                    />
+      <div className="flex-1 overflow-y-auto px-4 py-6 scrollbar-thin scrollbar-thumb-slate-700/50 scrollbar-track-transparent">
+        <div className="max-w-3xl mx-auto space-y-6">
+          {currentSessionId ? (
+            <>
+              {messages.length === 0 && (
+                <div className="flex flex-col items-center justify-center min-h-[400px] text-center space-y-6 animate-fade-in">
+                  <div className="w-20 h-20 rounded-2xl bg-gradient-to-tr from-indigo-500/20 to-purple-500/20 border border-indigo-500/30 flex items-center justify-center shadow-lg shadow-indigo-500/10">
+                    <Sparkles size={32} className="text-indigo-400" />
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Start a conversation
-                  </h3>
-                  <p className="text-gray-600 max-w-md">
-                    Ask anything! I'm here to assist with questions, creative
-                    tasks, analysis, and more.
-                  </p>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg w-full">
-                  {[
-                    "💡 Creative brainstorming",
-                    "📊 Data analysis help",
-                    "✍️ Writing assistance",
-                    "🔍 Research support",
-                  ].map((suggestion, index) => (
-                    <div
-                      key={index}
-                      className="p-3 bg-white rounded-lg shadow-sm border border-gray-100 hover:bg-indigo-50/50 cursor-pointer transition-all duration-300 text-sm text-gray-700 hover:text-indigo-700"
-                      onClick={() =>
-                        setInput(suggestion.split(" ").slice(1).join(" "))
-                      }
-                    >
-                      {suggestion}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {messages.map((msg, index) => (
-              <div
-                key={index}
-                className={`flex items-start gap-3 mb-4 animate-fadeIn ${
-                  msg.sender === "user" ? "justify-end" : "justify-start"
-                }`}
-                style={{
-                  animationDelay: `${index * 100}ms`,
-                  animation: "fadeInUp 0.4s ease-out forwards",
-                }}
-              >
-                {msg.sender === "bot" && (
-                  <div className="relative flex-shrink-0">
-                    <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-                      <Bot size={16} className="text-white" />
-                    </div>
+                  <div className="space-y-2 max-w-md">
+                    <h3 className="text-2xl font-bold text-white">
+                      How can I help you today?
+                    </h3>
+                    <p className="text-slate-400">
+                      I can help you with writing, analysis, code, and more.
+                    </p>
                   </div>
-                )}
 
-                <div
-                  className={`group relative max-w-[80%] rounded-lg shadow-sm transition-all duration-300 ${
-                    msg.sender === "user"
-                      ? "bg-gradient-to-br from-indigo-600 to-blue-600 text-white"
-                      : "bg-white text-gray-800 border border-gray-100"
-                  } hover:shadow-md`}
-                >
-                  <div className="p-4">
-                    <div className="text-sm leading-relaxed whitespace-pre-wrap break-words">
-                      {msg.text}
-                    </div>
-                    {msg.createdAt && (
-                      <div
-                        className={`text-xs mt-2 opacity-70 ${
-                          msg.sender === "user"
-                            ? "text-indigo-100"
-                            : "text-gray-500"
-                        }`}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-lg mt-8">
+                    {[
+                      "Write a creative story",
+                      "Explain quantum physics",
+                      "Debug my React code",
+                      "Plan a trip to Japan",
+                    ].map((text) => (
+                      <button
+                        key={text}
+                        onClick={() => setInput(text)}
+                        className="text-left px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-indigo-500/30 transition-all text-sm text-slate-300 hover:text-white"
                       >
-                        {new Date(msg.createdAt).toLocaleTimeString()}
-                      </div>
+                        {text}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {messages.map((msg, index) => (
+                <div
+                  key={index}
+                  className={`flex items-start gap-4 animate-slide-in ${
+                    msg.sender === "user" ? "flex-row-reverse" : "flex-row "
+                  }`}
+                  style={{ animationDelay: `${index * 50}ms` }}
+                >
+                  <div
+                    className={`flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center shadow-lg ${
+                      msg.sender === "user"
+                        ? "bg-indigo-600 ring-2 ring-indigo-500/30"
+                        : "bg-slate-800 ring-2 ring-white/10"
+                    }`}
+                  >
+                    {msg.sender === "user" ? (
+                      <User size={16} className="text-white" />
+                    ) : (
+                      <Bot size={16} className="text-indigo-400" />
                     )}
                   </div>
-                </div>
 
-                {msg.sender === "user" && (
-                  <div className="relative flex-shrink-0">
-                    <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-gray-700 rounded-lg flex items-center justify-center shadow-md">
-                      <User size={16} className="text-white" />
+                  <div
+                    className={`relative max-w-[80%] px-5 py-3.5 rounded-2xl shadow-sm ${
+                      msg.sender === "user"
+                        ? "bg-gradient-to-br from-indigo-600 to-purple-600 text-white rounded-tr-sm"
+                        : "bg-white/10 backdrop-blur-md border border-white/5 text-slate-200 rounded-tl-sm"
+                    }`}
+                  >
+                    <div className="text-base leading-relaxed whitespace-pre-wrap">
+                      {msg.text}
+                    </div>
+                    <div
+                      className={`text-[10px] mt-1.5 opacity-60 font-medium ${
+                        msg.sender === "user"
+                          ? "text-indigo-100"
+                          : "text-slate-500"
+                      }`}
+                    >
+                      {msg.createdAt
+                        ? new Date(msg.createdAt).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "Just now"}
                     </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-full space-y-4">
-            <div className="relative">
-              <div className="w-12 h-12 border-4 border-indigo-200 border-t-indigo-600 rounded-full animate-spin"></div>
-            </div>
-            <div className="text-center space-y-2">
-              <div className="text-gray-600 font-medium">
-                Preparing your chat session...
-              </div>
-              <div className="flex space-x-1 justify-center">
-                <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-                <div
-                  className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.1s" }}
-                ></div>
-                <div
-                  className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-                  style={{ animationDelay: "0.2s" }}
-                ></div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {loading && (
-          <div className="flex justify-start items-center gap-3 mb-4 animate-fadeIn">
-            <div className="relative">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-blue-600 rounded-lg flex items-center justify-center shadow-md">
-                <Bot size={16} className="text-white" />
-              </div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-100 max-w-[80%]">
-              <div className="flex items-center gap-3">
-                <div className="flex space-x-1">
-                  <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"></div>
-                  <div
-                    className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.1s" }}
-                  ></div>
-                  <div
-                    className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce"
-                    style={{ animationDelay: "0.2s" }}
-                  ></div>
                 </div>
-                <span className="text-gray-600 text-sm font-medium">
-                  Lumo is thinking...
-                </span>
+              ))}
+            </>
+          ) : (
+            <div className="h-full flex items-center justify-center text-slate-500">
+              <Loader2 size={24} className="animate-spin text-indigo-500" />
+            </div>
+          )}
+
+          {loading && (
+            <div className="flex items-center gap-4 animate-pulse">
+              <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center">
+                <Bot size={16} className="text-indigo-400" />
+              </div>
+              <div className="bg-white/5 px-4 py-3 rounded-2xl rounded-tl-sm flex gap-1">
+                <span
+                  className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "0ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "150ms" }}
+                />
+                <span
+                  className="w-1.5 h-1.5 bg-slate-400 rounded-full animate-bounce"
+                  style={{ animationDelay: "300ms" }}
+                />
               </div>
             </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
+          )}
+          <div ref={messagesEndRef} />
+        </div>
       </div>
 
-      <div
-        className={`${
-          isMobile ? "fixed bottom-0 left-0 right-0" : "sticky bottom-0"
-        } bg-white border-t border-gray-100 p-4 sm:p-6 z-20`}
-      >
-        <div className="relative max-w-4xl mx-auto">
-          <div className="relative flex items-end gap-2 bg-white rounded-lg shadow-sm border border-gray-200 p-2 focus-within:ring-2 focus-within:ring-indigo-500/30 focus-within:border-indigo-300 transition-all duration-300">
+      <div className="p-4 md:p-6 bg-gradient-to-t from-slate-950 via-slate-950/90 to-transparent sticky bottom-0 z-10">
+        <div className="max-w-3xl mx-auto relative group">
+          <div className="absolute -inset-0.5 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-2xl opacity-20 group-hover:opacity-40 transition-opacity blur"></div>
+          <div className="relative flex items-end gap-2 bg-slate-900/90 backdrop-blur-xl border border-white/10 rounded-2xl p-2 shadow-2xl">
             <textarea
               ref={textareaRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => {
+              onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
                   handleSend(e);
                 }
               }}
-              className="w-full max-h-32 min-h-[48px] px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-gray-800 placeholder-gray-400 text-base leading-relaxed font-medium"
+              className="w-full max-h-32 min-h-[48px] px-4 py-3 bg-transparent border-0 resize-none focus:outline-none text-slate-200 placeholder-slate-500 text-base leading-relaxed scrollbar-thin scrollbar-thumb-slate-700"
               placeholder={
-                currentSessionId
-                  ? "Type your message..."
-                  : "Waiting for session..."
+                currentSessionId ? "Message Lumo..." : "Initializing..."
               }
               disabled={loading || !currentSessionId}
               rows={1}
-              style={{
-                minHeight: "48px",
-                height: "auto",
-                maxHeight: "128px",
-              }}
+              style={{ height: "auto" }}
               onInput={(e) => {
                 e.target.style.height = "auto";
-                e.target.style.height = `${Math.min(
-                  e.target.scrollHeight,
-                  128
-                )}px`;
+                e.target.style.height =
+                  Math.min(e.target.scrollHeight, 150) + "px";
               }}
             />
             <button
-              type="submit"
               onClick={handleSend}
-              className="group relative flex-shrink-0 w-12 h-12 bg-gradient-to-br from-indigo-600 to-blue-600 text-white rounded-lg hover:from-indigo-700 hover:to-blue-700 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 shadow-md hover:shadow-lg"
+              className="mb-1 mr-1 p-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl shadow-lg shadow-indigo-500/20 transition-all disabled:opacity-50 disabled:cursor-not-allowed transform active:scale-95"
               disabled={loading || !input.trim() || !currentSessionId}
             >
-              <div className="relative z-10 flex items-center justify-center w-full h-full">
-                {loading ? (
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                ) : (
-                  <Send
-                    size={18}
-                    className="transition-transform duration-300 group-hover:scale-110 group-disabled:scale-100"
-                  />
-                )}
-              </div>
+              {loading ? (
+                <Loader2 size={18} className="animate-spin" />
+              ) : (
+                <Send size={18} />
+              )}
             </button>
           </div>
-          <div className="flex justify-between items-center mt-2">
-            {input && (
-              <span className="text-xs text-gray-400">
-                {input.length} characters
-              </span>
-            )}
+          <div className="text-center mt-2.5">
+            <p className="text-[10px] text-slate-500">
+              Lumo can make mistakes. Consider checking important information.
+            </p>
           </div>
         </div>
       </div>

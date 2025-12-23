@@ -274,11 +274,10 @@
 
 // export default ChatPage;
 
-
-
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 import api from "../../utils/api";
 import History from "./History";
 import ChatWindow from "./ChatWindow";
@@ -373,49 +372,19 @@ const ChatPage = () => {
   }, [dispatch, isAuthenticated, navigate, currentSessionId]);
 
   return (
-    <div className="flex h-screen overflow-hidden notebook-bg">
-      {/* Animated background elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-blue-200 to-indigo-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"></div>
-        <div
-          className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-r from-purple-200 to-pink-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-pulse"
-          style={{ animationDelay: "2s" }}
-        ></div>
-      </div>
-
+    <div className="flex h-screen overflow-hidden">
       <History />
-
-      <div className="flex-1 flex justify-center overflow-y-auto transition-all duration-300 relative z-10">
+      <div className="flex-1 flex flex-col overflow-hidden relative z-10">
         {loading ? (
-          <div className="flex flex-col items-center justify-center h-full space-y-4 md:p-8 p-2">
-            <div className="relative">
-              <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
-              <div
-                className="w-16 h-16 border-4 border-transparent border-t-indigo-400 rounded-full animate-spin absolute top-0 left-0"
-                style={{
-                  animationDirection: "reverse",
-                  animationDuration: "1.5s",
-                }}
-              ></div>
-            </div>
-            <div className="text-slate-600 font-medium">
+          <div className="flex flex-col items-center justify-center h-full space-y-4">
+            <Loader2 className="h-12 w-12 text-indigo-500 animate-spin" />
+            <div className="text-slate-400 font-medium">
               Loading your conversations...
-            </div>
-            <div className="flex space-x-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"></div>
-              <div
-                className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                style={{ animationDelay: "0.1s" }}
-              ></div>
-              <div
-                className="w-2 h-2 bg-blue-500 rounded-full animate-bounce"
-                style={{ animationDelay: "0.2s" }}
-              ></div>
             </div>
           </div>
         ) : error ? (
-          <div className="flex flex-col items-center justify-center h-full max-w-md mx-auto text-center space-y-4 md:p-8 p-2">
-            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+          <div className="flex flex-col items-center justify-center h-full max-w-md mx-auto text-center space-y-4 p-4">
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center border border-red-500/20">
               <svg
                 className="w-8 h-8 text-red-500"
                 fill="none"
@@ -430,25 +399,21 @@ const ChatPage = () => {
                 />
               </svg>
             </div>
-            <h3 className="text-xl font-semibold text-slate-800">
+            <h3 className="text-xl font-semibold text-slate-200">
               Something went wrong
             </h3>
-            <p className="text-red-600 bg-red-50 border border-red-200 rounded-lg md:px-4 md:py-3 px-2 py-1.5">
+            <p className="text-red-400 bg-red-500/10 border border-red-500/20 rounded-lg px-4 py-3">
               {error}
             </p>
             <button
               onClick={() => window.location.reload()}
-              className="md:px-6 md:py-2 px-3 py-1 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-200 font-medium cursor-pointer"
+              className="glass-button px-6 py-2 rounded-lg font-medium"
             >
               Try Again
             </button>
           </div>
         ) : (
-          <div className="w-full max-w-5xl mx-auto md:p-4 sm:p-1">
-            <div className="backdrop-blur-sm bg-white/80 sm:rounded-2xl shadow-xl border border-white/20 overflow-hidden h-full">
-              <ChatWindow />
-            </div>
-          </div>
+          <ChatWindow />
         )}
       </div>
     </div>
@@ -456,6 +421,3 @@ const ChatPage = () => {
 };
 
 export default ChatPage;
-
-
-
