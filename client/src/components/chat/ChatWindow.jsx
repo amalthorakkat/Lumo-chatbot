@@ -184,9 +184,9 @@ import {
   updateSessionTitle,
 } from "../../redux/slices/chatSlice";
 import { logout } from "../../redux/slices/authSlice";
+import LOGO from "../../assets/LOGO.png";
 
-const LOGO_URL =
-  "https://i.postimg.cc/RhqzpXz5/Gemini-Generated-Image-kyplvxkyplvxkypl-1.png";
+const LOGO_URL = LOGO;
 
 const ChatWindow = () => {
   const [input, setInput] = useState("");
